@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dodgefield</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== HUB (start screen: My Levels + Online side-by-side) ===== -->
+  <div id="hub-screen">
+    <div id="home-bg"></div>
+    <div id="hub-content">
+
+      <div id="hub-header">
+        <div id="hub-logo">
+          <span id="hub-logo-word">DODGEFIELD</span>
+          <span id="hub-logo-tag">LEVEL EDITOR</span>
+        </div>
+        <div id="hub-header-right">
+          <div id="hub-account-bar">
+            <span id="hub-account-name"></span>
+            <button class="hub-btn" id="hub-btn-login">Sign In</button>
+            <button class="hub-btn hub-btn-accent" id="hub-btn-register">Create Account</button>
+            <button class="hub-btn hub-btn-danger hidden" id="hub-btn-logout">Sign Out</button>
+            <button class="hub-btn hidden" id="hub-btn-my-uploads">My Uploads</button>
+          </div>
+          <div id="hub-suggest-bar">
+            <button class="hub-btn hub-btn-suggest" id="hub-btn-suggest">Suggest</button>
+            <button class="hub-btn hub-btn-inbox" id="hub-btn-inbox">Inbox<span id="hub-inbox-badge" class="inbox-badge hidden">0</span></button>
+            <button class="hub-btn" id="hub-btn-mobile-controls" title="Toggle mobile D-pad controls">Mobile Controls</button>
+          </div>
+          <button class="hub-btn hub-btn-admin" id="hub-btn-admin">Admin</button>
+        </div>
+      </div>
+
+      <div id="hub-panels">
+
+        <!-- LEFT: My Levels -->
+        <div class="hub-panel" id="hub-panel-create">
+          <div class="hub-panel-header">
+            <span class="hub-panel-title">MY LEVELS</span>
+            <div class="hub-panel-actions">
+              <button class="hub-btn" id="hub-btn-import">Import</button>
+              <button class="hub-btn" id="hub-btn-export-all">Export All</button>
+            </div>
+          </div>
+          <div id="hub-my-levels-list"></div>
+          <div id="hub-my-empty" class="hub-empty hidden">
+            <div class="hub-empty-text">No levels yet.</div>
+          </div>
+          <button id="hub-btn-new-level">+ NEW LEVEL</button>
+        </div>
+
+        <!-- RIGHT: Online Levels -->
+        <div class="hub-panel" id="hub-panel-online">
+          <div class="hub-panel-header">
+            <span class="hub-panel-title">ONLINE LEVELS</span>
+            <div class="hub-panel-actions">
+              <button class="hub-btn" id="hub-btn-refresh" title="Refresh">&#8635; Refresh</button>
+              <button class="hub-btn hub-btn-upload hidden" id="hub-btn-upload">+ Upload</button>
+            </div>
+          </div>
+
+          <!-- Search row -->
+          <div id="hub-search-row">
+            <input type="text" id="hub-search" placeholder="Search by name or author..." autocomplete="off" />
+          </div>
+
+          <!-- Filter row -->
+          <div id="hub-filter-row">
+            <div class="filter-group">
+              <span class="filter-label">SHOW</span>
+              <div class="filter-btn-row">
+                <button id="filter-feat-all"        class="filter-btn active">All</button>
+                <button id="filter-feat-featured"   class="filter-btn">Featured</button>
+                <button id="filter-feat-normal"     class="filter-btn">Normal</button>
+                <button id="filter-feat-crazy"      class="filter-btn filter-btn-crazy">Crazy</button>
+                <button id="filter-feat-unreal"     class="filter-btn filter-btn-unreal">Unreal</button>
+                <button id="filter-feat-impossible" class="filter-btn filter-btn-impossible">IMPOSSIBLE</button>
+              </div>
+            </div>
+            <div class="filter-group">
+              <span class="filter-label">DIFFICULTY&nbsp;<span id="filter-diff-label">Any</span></span>
+              <div class="filter-diff-row">
+                <span class="diff-range-side">1</span>
+                <input type="range" id="filter-diff-min" min="1" max="10" value="1" />
+                <span class="diff-range-sep">-</span>
+                <input type="range" id="filter-diff-max" min="1" max="10" value="10" />
+                <span class="diff-range-side">10</span>
+                <button id="filter-diff-any" class="filter-btn active">+Unrated</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="hub-online-count-bar">
+            <span id="hub-online-count">COMMUNITY LEVELS</span>
+          </div>
+
+          <div id="hub-online-list">
+            <div id="hub-online-loading" class="hub-empty hidden">
+              <div class="hub-empty-text">Loading levels...</div>
+            </div>
+            <div id="hub-online-empty" class="hub-empty hidden">
+              <div class="hub-empty-text">No community levels yet. Be the first to upload one!</div>
+            </div>
+            <div id="hub-online-noresults" class="hub-empty hidden">
+              <div class="hub-empty-text">No levels match your filters.</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /hub-panels -->
+
+      <!-- ===== ONLINE MULTIPLAYER SECTION ===== -->
+      <div id="hub-mp-bar">
+        <div id="hub-mp-label">ONLINE</div>
+        <button class="hub-btn hub-btn-mp" id="hub-btn-create-room">Create Room</button>
+        <button class="hub-btn hub-btn-mp" id="hub-btn-join-room">Join Room</button>
+        <span id="hub-mp-status"></span>
+      </div>
+
+      <!-- LOBBY VIEW (replaces hub-panels when in a room) -->
+      <div id="hub-lobby" class="hidden">
+        <div class="hub-lobby-panel" id="hub-lobby-players">
+          <div class="hub-lobby-panel-header">PLAYERS IN ROOM</div>
+          <div id="hub-lobby-player-list"></div>
+        </div>
+        <div class="hub-lobby-panel hub-lobby-right" id="hub-lobby-levels">
+          <div class="hub-lobby-panel-header">
+            <span id="hub-lobby-room-code-label">ROOM — <span id="hub-lobby-room-code"></span></span>
+            <span id="hub-lobby-host-tag" class="hidden">HOST</span>
+          </div>
+          <div id="hub-lobby-status-bar">
+            <span id="hub-lobby-status-text">Waiting for players...</span>
+            <div id="hub-lobby-countdown" class="hidden">
+              <span id="hub-lobby-countdown-num">5</span>
+            </div>
+          </div>
+          <div id="hub-lobby-levels-list" class="hidden">
+            <div class="hub-lobby-section-label">CHOOSE A LEVEL TO PLAY</div>
+            <div id="hub-lobby-my-levels"></div>
+          </div>
+          <div id="hub-lobby-selected-level" class="hidden">
+            <div class="hub-lobby-section-label">SELECTED LEVEL</div>
+            <div id="hub-lobby-sel-level-name" class="hub-lobby-sel-name"></div>
+          </div>
+          <div id="hub-lobby-actions">
+            <button class="hub-btn hub-btn-mp hub-btn-start" id="hub-btn-start-game">Start Game</button>
+            <button class="hub-btn hub-btn-mp-exit" id="hub-btn-exit-room">Exit Room</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WIN RESULTS OVERLAY for multiplayer -->
+      <div id="mp-results-overlay" class="hidden">
+        <div id="mp-results-box">
+          <div id="mp-results-title">RACE RESULTS</div>
+          <div id="mp-results-list"></div>
+          <div id="mp-results-returning">Returning to lobby...</div>
+        </div>
+      </div>
+
+      <div id="hub-footer">
+        WASD / Arrow keys &nbsp;&middot;&nbsp; Collect coins &nbsp;&middot;&nbsp; Reach the green goal &nbsp;&middot;&nbsp; Don't touch the blue dots
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== EDITOR ===== -->
+  <div id="editor-screen" class="hidden">
+    <header id="topbar">
+      <div id="game-title">
+        <button id="btn-home" title="Back to Hub">&#8962;</button>
+        <button id="btn-sidebar-toggle" title="Toggle Sidebar (Tab)">&#9776;</button>
+        <span class="title-big">DODGEFIELD</span>
+        <span class="title-small">EDITOR</span>
+      </div>
+      <div id="topbar-center">
+        <input type="text" id="current-level-name-input" maxlength="40" placeholder="Level name..." />
+      </div>
+      <div id="topbar-actions">
+        <span id="autosave-indicator">Saved</span>
+        <button class="action-btn" id="btn-resize">Grid</button>
+        <button class="action-btn" id="btn-undo">Undo</button>
+        <button class="action-btn" id="btn-clear">Clear</button>
+        <button class="action-btn primary" id="btn-play">Play</button>
+        <button class="action-btn" id="btn-save">Export</button>
+      </div>
+    </header>
+
+    <div id="main-layout">
+      <aside id="toolbar">
+        <div id="toolbar-inner">
+          <div class="toolbar-section">
+            <p class="toolbar-section-label">TOOLS</p>
+            <div class="tool-grid">
+              <button class="tool-btn active" data-tool="wall">
+                <span class="tool-swatch" style="background:#1a1a2e;"></span>
+                <span class="tool-label">Wall</span><span class="tool-shortcut">1</span>
+              </button>
+              <button class="tool-btn" data-tool="erase">
+                <span class="tool-swatch erase-swatch"></span>
+                <span class="tool-label">Erase</span><span class="tool-shortcut">2</span>
+              </button>
+              <button class="tool-btn" data-tool="goal">
+                <span class="tool-swatch" style="background:#28a845;"></span>
+                <span class="tool-label">Goal</span><span class="tool-shortcut">3</span>
+              </button>
+              <button class="tool-btn" data-tool="player">
+                <span class="tool-swatch" style="background:#e03030;"></span>
+                <span class="tool-label">Spawn</span><span class="tool-shortcut">4</span>
+              </button>
+              <button class="tool-btn" data-tool="coin">
+                <span class="tool-circle" style="background:#f0c020;"></span>
+                <span class="tool-label">Coin</span><span class="tool-shortcut">5</span>
+              </button>
+              <button class="tool-btn" data-tool="linear">
+                <span class="tool-circle" style="background:#1a3acc;"></span>
+                <span class="tool-label">Linear</span><span class="tool-shortcut">W</span>
+              </button>
+              <button class="tool-btn" data-tool="orbit">
+                <span class="tool-circle" style="background:#aa22ee;"></span>
+                <span class="tool-label">Orbit</span><span class="tool-shortcut">O</span>
+              </button>
+              <button class="tool-btn" data-tool="follower">
+                <span class="tool-circle" style="background:#cc2200;"></span>
+                <span class="tool-label">Follower</span><span class="tool-shortcut">V</span>
+              </button>
+              <button class="tool-btn" data-tool="key">
+                <span class="tool-key-shape"></span>
+                <span class="tool-label">Key</span><span class="tool-shortcut">7</span>
+              </button>
+              <button class="tool-btn" data-tool="door">
+                <span class="tool-swatch" style="background:#e8c200;opacity:0.85;"></span>
+                <span class="tool-label">Door</span><span class="tool-shortcut">8</span>
+              </button>
+              <button class="tool-btn" data-tool="ice">
+                <span class="tool-swatch" style="background:#a0e0ff;border:2px solid #60b0e0;"></span>
+                <span class="tool-label">Ice</span><span class="tool-shortcut">9</span>
+              </button>
+              <button class="tool-btn" data-tool="checkpoint">
+                <span class="tool-swatch" style="background:#ff8c00;"></span>
+                <span class="tool-label">Check</span><span class="tool-shortcut">K</span>
+              </button>
+              <button class="tool-btn" data-tool="select">
+                <span class="tool-select-icon">&#9654;</span>
+                <span class="tool-label">Select</span><span class="tool-shortcut">S</span>
+              </button>
+              <button class="tool-btn" data-tool="fill">
+                <span class="tool-fill-icon">&#9698;</span>
+                <span class="tool-label">Fill</span><span class="tool-shortcut">F</span>
+              </button>
+              <button class="tool-btn" data-tool="kill">
+                <span class="tool-kill-icon">✕</span>
+                <span class="tool-label">Kill</span><span class="tool-shortcut">X</span>
+              </button>
+              <button class="tool-btn" data-tool="teleport">
+                <span class="tool-teleport-icon"></span>
+                <span class="tool-label">Teleport</span><span class="tool-shortcut">T</span>
+              </button>
+              <button class="tool-btn" data-tool="trigger">
+                <span class="tool-trigger-icon"></span>
+                <span class="tool-label">Trigger</span><span class="tool-shortcut">G</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="wall-color-panel" class="hidden">
+            <div class="toolbar-divider"></div>
+            <p class="toolbar-section-label">WALL COLOR</p>
+            <div class="wall-color-swatches">
+              <button class="wall-color-swatch active" data-color="#1a1a2e" style="background:#1a1a2e;" title="Dark Navy"></button>
+              <button class="wall-color-swatch" data-color="#2d1b00" style="background:#2d1b00;" title="Dark Brown"></button>
+              <button class="wall-color-swatch" data-color="#1a2e1a" style="background:#1a2e1a;" title="Dark Green"></button>
+              <button class="wall-color-swatch" data-color="#2e1a1a" style="background:#2e1a1a;" title="Dark Red"></button>
+              <button class="wall-color-swatch" data-color="#2e2e1a" style="background:#2e2e1a;" title="Dark Yellow"></button>
+              <button class="wall-color-swatch" data-color="#1a1a4e" style="background:#1a1a4e;" title="Dark Blue"></button>
+              <button class="wall-color-swatch" data-color="#3a1a3a" style="background:#3a1a3a;" title="Dark Purple"></button>
+              <button class="wall-color-swatch" data-color="#555555" style="background:#555555;" title="Gray"></button>
+              <button class="wall-color-swatch" data-color="#8B4513" style="background:#8B4513;" title="Brown"></button>
+              <button class="wall-color-swatch" data-color="#2F4F4F" style="background:#2F4F4F;" title="Dark Teal"></button>
+              <button class="wall-color-swatch" data-color="#4a3000" style="background:#4a3000;" title="Wood"></button>
+              <button class="wall-color-swatch" data-color="#cc4400" style="background:#cc4400;" title="Brick Red"></button>
+              <button class="wall-color-swatch" data-color="#006644" style="background:#006644;" title="Forest"></button>
+              <button class="wall-color-swatch" data-color="#003366" style="background:#003366;" title="Ocean"></button>
+              <button class="wall-color-swatch" data-color="#660033" style="background:#660033;" title="Wine"></button>
+              <button class="wall-color-swatch custom-color-btn" data-color="custom" title="Custom color">+</button>
+            </div>
+            <input type="color" id="wall-color-picker" value="#1a1a2e" style="display:none;" />
+          </div>
+
+          <div class="toolbar-divider"></div>
+
+          <div id="context-panel">
+            <div id="panel-default" class="panel-block">
+              <p class="inst-text">Click an enemy, key, or door to select and configure it.</p>
+              <div class="toolbar-divider"></div>
+              <p class="toolbar-section-label">CAMERA</p>
+              <div class="btn-row">
+                <button class="choice-btn active" id="camera-fixed">Fixed</button>
+                <button class="choice-btn" id="camera-follow">Follow Player</button>
+              </div>
+              <div id="camera-zoom-row" class="hidden">
+                <p class="toolbar-section-label" style="margin-top:6px;">ZOOM LEVEL</p>
+                <div class="slider-number-row">
+                  <input type="range"  class="panel-range" id="camera-zoom"     min="1" max="10" value="2" step="0.25" />
+                  <input type="number" class="num-input"   id="camera-zoom-num" min="1" max="10" value="2" step="0.25" />
+                </div>
+                <p class="inst-text">Preview shows camera viewport in editor.</p>
+              </div>
+              <div class="toolbar-divider"></div>
+              <p class="toolbar-section-label">TIME LIMIT</p>
+              <div class="btn-row">
+                <button class="choice-btn active" id="timelimit-off">Off</button>
+                <button class="choice-btn" id="timelimit-on">On</button>
+              </div>
+              <div id="timelimit-row" class="hidden">
+                <div class="slider-number-row">
+                  <input type="range"  class="panel-range" id="timelimit"     min="5"  max="300" value="60" step="5" />
+                  <input type="number" class="num-input"   id="timelimit-num" min="5"  max="300" value="60" />
+                </div>
+              </div>
+              <div class="toolbar-divider"></div>
+              <p class="toolbar-section-label">PLAYER SPEED</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="speed"     min="40" max="300" value="120" step="10" />
+                <input type="number" class="num-input"   id="speed-num" min="40" max="300" value="120" />
+              </div>
+            </div>
+
+            <!-- KILL TILE panel -->
+            <div id="panel-kill" class="panel-block hidden">
+              <p class="panel-enemy-type-label" style="background:#cc1111;color:#fff;">KILL TILE</p>
+              <p class="inst-text" id="kill-multi-count" style="margin-bottom:4px;color:#ffaaaa;"></p>
+              <p class="toolbar-section-label">OPACITY</p>
+              <p class="inst-text">0 = invisible but still deadly. 100 = fully visible.</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="kill-opacity"     min="0" max="100" value="100" step="5" />
+                <input type="number" class="num-input"   id="kill-opacity-num" min="0" max="100" value="100" />
+              </div>
+              <div class="toolbar-divider"></div>
+              <button class="action-btn danger" id="btn-delete-kill">Delete Tile(s)</button>
+            </div>
+
+            <!-- LINEAR enemy panel -->
+            <div id="panel-linear" class="panel-block hidden">
+              <p class="panel-enemy-type-label type-linear">LINEAR ENEMY</p>
+              <p class="toolbar-section-label">DURATION (s)</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="enemy-duration"     min="0.5" max="255" value="3" step="0.5" />
+                <input type="number" class="num-input"   id="enemy-duration-num" min="0.5" max="255" value="3" />
+              </div>
+              <p class="toolbar-section-label">START PHASE</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="enemy-phase"     min="0" max="1" value="0" step="0.05" />
+                <input type="number" class="num-input"   id="enemy-phase-num" min="0" max="1" value="0" />
+              </div>
+              <p class="toolbar-section-label">LOOP MODE</p>
+              <div class="btn-row">
+                <button class="choice-btn active" id="mode-bounce">Bounce</button>
+                <button class="choice-btn" id="mode-loop">Loop</button>
+              </div>
+              <p class="toolbar-section-label">DIRECTION</p>
+              <div class="btn-row">
+                <button class="choice-btn active" id="dir-fwd">Forward</button>
+                <button class="choice-btn" id="dir-bwd">Backward</button>
+              </div>
+              <p class="toolbar-section-label">PATH</p>
+              <button class="action-btn full-width" id="btn-set-path">Set Path (A to B)</button>
+              <p id="path-hint" class="hint-text hidden"></p>
+              <p class="toolbar-section-label">WAYPOINTS</p>
+              <button class="action-btn full-width" id="btn-add-keyframe">+ Add Waypoint</button>
+              <div id="keyframes-list"></div>
+              <div id="path-readout" class="info-row hidden">
+                <span class="info-label">PATH</span>
+                <span class="info-val" id="path-readout-text"></span>
+              </div>
+              <div class="toolbar-divider"></div>
+              <p class="toolbar-section-label">TRIGGER LINKS</p>
+              <p class="inst-text">Link to trigger blocks so this enemy starts frozen until stepped on.</p>
+              <div id="linear-trigger-list" class="doors-list" style="max-height:100px;"></div>
+              <p class="inst-text" id="linear-trigger-none" style="margin-top:2px;">No triggers linked.</p>
+              <button class="action-btn full-width" id="btn-link-trigger">+ Add Trigger Link</button>
+              <p id="trigger-link-hint" class="hint-text hidden"></p>
+              <div class="toolbar-divider"></div>
+              <button class="action-btn danger" id="btn-delete-enemy">Delete Enemy</button>
+            </div>
+
+            <!-- ORBIT enemy panel -->
+            <div id="panel-orbit" class="panel-block hidden">
+              <p class="panel-enemy-type-label type-orbit">ORBIT ENEMY</p>
+              <p class="toolbar-section-label">RADIUS (tiles)</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="orbit-radius"     min="1" max="14" value="3" step="0.5" />
+                <input type="number" class="num-input"   id="orbit-radius-num" min="1" max="14" value="3" />
+              </div>
+              <p class="toolbar-section-label">ORBIT DURATION (s)</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="orbit-duration"     min="0.5" max="255" value="4" step="0.5" />
+                <input type="number" class="num-input"   id="orbit-duration-num" min="0.5" max="255" value="4" />
+              </div>
+              <p class="toolbar-section-label">START ANGLE (deg)</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="orbit-angle"     min="0" max="360" value="0" step="5" />
+                <input type="number" class="num-input"   id="orbit-angle-num" min="0" max="360" value="0" />
+              </div>
+              <p class="toolbar-section-label">DIRECTION</p>
+              <div class="btn-row">
+                <button class="choice-btn active" id="orbit-cw">Clockwise</button>
+                <button class="choice-btn" id="orbit-ccw">Counter</button>
+              </div>
+              <p class="toolbar-section-label">ORBIT MODE</p>
+              <div class="btn-row">
+                <button class="choice-btn active" id="orbit-mode-loop">Loop</button>
+                <button class="choice-btn" id="orbit-mode-bounce">Bounce</button>
+              </div>
+              <div id="orbit-bounce-panel" class="hidden">
+                <p class="toolbar-section-label">LOOPS BEFORE BOUNCE</p>
+                <div class="slider-number-row">
+                  <input type="range"  class="panel-range" id="orbit-bounce-loops"     min="0.5" max="20" value="1" step="0.5" />
+                  <input type="number" class="num-input"   id="orbit-bounce-loops-num" min="0.5" max="20" value="1" />
+                </div>
+                <p class="inst-text">Reverses direction every N loops (0.5 = half orbit).</p>
+              </div>
+              <button class="action-btn full-width" id="btn-set-center">Set Center Point</button>
+              <p id="center-hint" class="hint-text hidden"></p>
+              <div class="toolbar-divider"></div>
+              <p class="toolbar-section-label">TRIGGER LINKS</p>
+              <p class="inst-text">Link to trigger blocks so this enemy starts frozen until stepped on.</p>
+              <div id="orbit-trigger-list" class="doors-list" style="max-height:100px;"></div>
+              <p class="inst-text" id="orbit-trigger-none" style="margin-top:2px;">No triggers linked.</p>
+              <button class="action-btn full-width" id="btn-link-trigger-orbit">+ Add Trigger Link</button>
+              <p id="trigger-link-hint-orbit" class="hint-text hidden"></p>
+              <div class="toolbar-divider"></div>
+              <button class="action-btn danger" id="btn-delete-enemy-orbit">Delete Enemy</button>
+            </div>
+
+            <!-- FOLLOWER enemy panel -->
+            <div id="panel-follower" class="panel-block hidden">
+              <p class="panel-enemy-type-label type-follower">FOLLOWER ENEMY</p>
+              <p class="toolbar-section-label">CHASE SPEED (px/s)</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="follower-speed"     min="20" max="400" value="80" step="5" />
+                <input type="number" class="num-input"   id="follower-speed-num" min="20" max="400" value="80" />
+              </div>
+              <p class="toolbar-section-label">DRIFT (1=floaty · 20=instant)</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="follower-drift"     min="0.5" max="20" value="4" step="0.5" />
+                <input type="number" class="num-input"   id="follower-drift-num" min="0.5" max="20" value="4" />
+              </div>
+              <p class="toolbar-section-label">DETECTION RANGE (px)</p>
+              <div class="slider-number-row">
+                <input type="range"  class="panel-range" id="follower-range"     min="0" max="800" value="0" step="16" />
+                <input type="number" class="num-input"   id="follower-range-num" min="0" max="800" value="0" />
+              </div>
+              <button class="choice-btn active" id="follower-range-infinite" style="width:100%;margin-top:4px;">Infinite Range</button>
+              <p class="inst-text" style="margin-top:6px;">0 = infinite. Set range to limit detection distance.</p>
+              <div class="toolbar-divider"></div>
+              <p class="toolbar-section-label">TRIGGER LINKS</p>
+              <p class="inst-text">Link to trigger blocks so this enemy starts frozen until stepped on.</p>
+              <div id="follower-trigger-list" class="doors-list" style="max-height:100px;"></div>
+              <p class="inst-text" id="follower-trigger-none" style="margin-top:2px;">No triggers linked.</p>
+              <button class="action-btn full-width" id="btn-link-trigger-follower">+ Add Trigger Link</button>
+              <p id="trigger-link-hint-follower" class="hint-text hidden"></p>
+              <div class="toolbar-divider"></div>
+              <button class="action-btn danger" id="btn-delete-enemy-follower">Delete Enemy</button>
+            </div>
+
+            <div id="panel-key" class="panel-block hidden">
+              <p class="toolbar-section-label">KEY COLOR</p>
+              <div class="color-swatches" id="key-color-swatches">
+                <button class="color-swatch" data-color="#e8c200" style="background:#e8c200;"></button>
+                <button class="color-swatch" data-color="#e03030" style="background:#e03030;"></button>
+                <button class="color-swatch" data-color="#2244cc" style="background:#2244cc;"></button>
+                <button class="color-swatch" data-color="#20aa40" style="background:#20aa40;"></button>
+                <button class="color-swatch" data-color="#cc44cc" style="background:#cc44cc;"></button>
+                <button class="color-swatch" data-color="#cc7700" style="background:#cc7700;"></button>
+              </div>
+              <p class="toolbar-section-label">LINKED DOORS</p>
+              <div class="doors-list" id="key-doors-list"></div>
+              <button class="action-btn full-width" id="btn-link-door">Link a Door</button>
+              <p id="link-door-hint" class="hint-text hidden"></p>
+              <button class="action-btn danger" id="btn-delete-key">Delete Key</button>
+            </div>
+
+            <div id="panel-teleport" class="panel-block hidden">
+              <p class="toolbar-section-label">TELEPORT TILE</p>
+              <p class="inst-text">Link two teleport tiles together. Players touching one will warp to the other.</p>
+              <button class="action-btn full-width" id="btn-link-teleport">Link to Another Tile</button>
+              <p id="teleport-link-hint" class="hint-text hidden"></p>
+              <div id="teleport-linked-info" class="info-row hidden">
+                <span class="info-label">LINKED TO</span>
+                <span class="info-val" id="teleport-dest-val"></span>
+              </div>
+              <button class="action-btn" id="btn-unlink-teleport">Unlink</button>
+            </div>
+
+            <div id="panel-door" class="panel-block hidden">
+              <p class="toolbar-section-label">LINKED KEY</p>
+              <p class="inst-text">Select a key, then use "Link a Door" to connect it.</p>
+              <div class="info-row">
+                <span class="info-label">KEY</span>
+                <span class="info-val" id="door-key-val">None</span>
+              </div>
+              <button class="action-btn danger" id="btn-delete-door">Delete Door</button>
+            </div>
+
+            <div id="panel-trigger" class="panel-block hidden">
+              <p class="toolbar-section-label">TRIGGER BLOCK</p>
+              <p class="inst-text">This block is invisible during play. Enemies linked to it will start or stop when the player steps on it.</p>
+              <p class="toolbar-section-label">TRIGGER ACTION</p>
+              <div class="btn-row">
+                <button class="choice-btn active" id="trigger-action-start">Start Enemy</button>
+                <button class="choice-btn" id="trigger-action-stop">Stop Enemy</button>
+              </div>
+              <div id="trigger-linked-enemies" class="doors-list" style="max-height:120px;"></div>
+              <p class="inst-text" id="trigger-no-enemies" style="margin-top:4px;">No enemies linked yet.</p>
+              <button class="action-btn danger" id="btn-delete-trigger" style="margin-top:8px;">Delete Trigger</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main id="canvas-area">
+        <canvas id="game-canvas"></canvas>
+        <div id="hud" class="hidden">
+          <span id="hud-deaths">Deaths: 0</span>
+          <span id="hud-coins">Coins: 0/0</span>
+          <span id="hud-keys" class="hidden">Keys: 0/0</span>
+          <span id="hud-timer" class="hidden"></span>
+          <span id="hud-msg"></span>
+        </div>
+        <div id="win-overlay" class="hidden">
+          <div id="win-box">
+            <div id="win-title">Level Complete!</div>
+            <div id="win-level-name"></div>
+            <div id="win-stats">
+              <div class="win-stat">
+                <span class="win-stat-label">DEATHS</span>
+                <span id="win-deaths">0</span>
+              </div>
+              <div class="win-stat">
+                <span class="win-stat-label">TIME</span>
+                <span id="win-time">0:00</span>
+              </div>
+              <div class="win-stat" id="win-stat-coins" style="display:none;">
+                <span class="win-stat-label">COINS</span>
+                <span id="win-coins">0</span>
+              </div>
+            </div>
+            <div id="win-actions">
+              <button class="action-btn primary" id="btn-win-edit">Back</button>
+              <button class="action-btn" id="btn-win-retry">Retry</button>
+              <button class="action-btn" id="btn-win-home">Menu</button>
+            </div>
+          </div>
+        </div>
+        <div id="death-flash"></div>
+        <!-- Floating pause button - top left of canvas -->
+        <button id="btn-pause-float" class="hidden" title="Pause (Esc)">⏸</button>
+        <!-- Pause overlay -->
+        <div id="pause-overlay" class="hidden">
+          <div id="pause-box">
+            <div id="pause-header">DODGEFIELD</div>
+            <div id="pause-title">PAUSED</div>
+            <div id="pause-stats">
+              <div class="pause-stat">
+                <div class="pause-stat-num" id="pause-stat-deaths">0</div>
+                <div class="pause-stat-lbl">DEATHS</div>
+              </div>
+              <div class="pause-stat-divider"></div>
+              <div class="pause-stat">
+                <div class="pause-stat-num" id="pause-stat-time">0:00</div>
+                <div class="pause-stat-lbl">TIME</div>
+              </div>
+            </div>
+            <div id="pause-actions">
+              <button class="action-btn primary" id="btn-pause-resume">▶ Resume</button>
+              <button class="action-btn" id="btn-pause-restart">↺ Restart</button>
+              <button class="action-btn" id="btn-pause-exit">⌂ Exit</button>
+            </div>
+          </div>
+        </div>
+        <div id="vjoystick-wrap" style="display:none;">
+          <div id="vjoy-base">
+            <div id="vjoy-stick"></div>
+          </div>
+        </div>
+        <!-- D-pad mobile controls -->
+        <div id="dpad-wrap" style="display:none;">
+          <div id="dpad">
+            <button class="dpad-btn" id="dpad-up">^</button>
+            <div class="dpad-middle-row">
+              <button class="dpad-btn" id="dpad-left">&lt;</button>
+              <div class="dpad-center"></div>
+              <button class="dpad-btn" id="dpad-right">&gt;</button>
+            </div>
+            <button class="dpad-btn" id="dpad-down">v</button>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <footer id="statusbar">
+      <span id="status-tool">Tool: Wall</span>
+      <span id="status-grid">-</span>
+      <span id="status-size"></span>
+      <span id="status-msg"></span>
+    </footer>
+  </div>
+
+  <!-- ===== MODALS ===== -->
+
+  <!-- Generic confirm/input modal -->
+  <div id="modal-overlay" class="hidden">
+    <div id="modal-box">
+      <h2 id="modal-title"></h2>
+      <div id="modal-body"></div>
+      <div id="modal-buttons">
+        <button class="action-btn primary" id="modal-confirm">OK</button>
+        <button class="action-btn" id="modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Auth modal -->
+  <div id="auth-modal" class="hidden">
+    <div id="auth-box">
+      <div id="auth-box-logo">
+        <span id="auth-logo-word">DODGEFIELD</span>
+        <span id="auth-logo-sub">LEVEL EDITOR</span>
+      </div>
+      <div id="auth-tabs">
+        <button class="auth-tab active" id="auth-tab-login">Sign In</button>
+        <button class="auth-tab" id="auth-tab-register">Create Account</button>
+      </div>
+      <div id="auth-login-form">
+        <p class="auth-section-title">SIGN IN TO DODGEFIELD</p>
+        <label class="auth-label">Username</label>
+        <input type="text" id="auth-email" placeholder="Your username" autocomplete="username" />
+        <label class="auth-label">Password</label>
+        <input type="password" id="auth-password" placeholder="Password" autocomplete="current-password" />
+        <div id="auth-error" class="auth-error hidden"></div>
+        <button class="action-btn primary auth-submit-btn" id="auth-btn-login">Sign In</button>
+        <button class="action-btn auth-guest-btn" id="auth-btn-guest">Continue as Guest (play only)</button>
+      </div>
+      <div id="auth-register-form" class="hidden">
+        <p class="auth-section-title">CREATE YOUR ACCOUNT</p>
+        <label class="auth-label">Username (shown on your levels)</label>
+        <input type="text" id="auth-reg-username" placeholder="Pick a username" maxlength="30" autocomplete="username" />
+        <label class="auth-label">Password (4+ characters)</label>
+        <input type="password" id="auth-reg-password" placeholder="Password" autocomplete="new-password" />
+        <div id="auth-reg-error" class="auth-error hidden"></div>
+        <button class="action-btn primary auth-submit-btn" id="auth-btn-register">Create Account</button>
+        <button class="action-btn auth-guest-btn" id="auth-btn-guest-2">Continue as Guest (play only)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Uploads modal -->
+  <div id="my-uploads-modal" class="hidden">
+    <div id="my-uploads-box">
+      <div id="my-uploads-header">
+        <span>MY UPLOADED LEVELS</span>
+        <button class="hub-btn" id="my-uploads-close">X Close</button>
+      </div>
+      <div id="my-uploads-list"></div>
+      <div id="my-uploads-empty" class="hub-empty hidden">
+        <div class="hub-empty-text">You have not uploaded any levels yet.</div>
+      </div>
+      <div id="my-uploads-loading" class="hub-empty hidden">
+        <div class="hub-empty-text">Loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload wizard -->
+  <div id="upload-modal" class="hidden">
+    <div id="upload-box">
+      <div class="upload-game-header">
+        <span class="upload-game-title">DODGEFIELD</span>
+        <span class="upload-game-sub">UPLOAD LEVEL</span>
+      </div>
+      <!-- Step 1: Choose file -->
+      <div id="upload-step-1">
+        <div class="upload-header"><span class="upload-step-tag">STEP 1 OF 3</span>CHOOSE YOUR LEVEL FILE</div>
+        <div class="upload-body">
+          <p class="upload-hint-top">Select the .json file you exported from the editor:</p>
+          <label class="upload-file-label" id="upload-file-label-btn">
+            Choose .json file
+            <input type="file" id="upload-file-input" accept=".json,application/json" style="display:none;">
+          </label>
+          <div id="upload-file-chosen" class="upload-file-chosen hidden"></div>
+          <div id="upload-preview" class="hidden">
+            <div id="upload-preview-icon">OK</div>
+            <div><div id="upload-preview-name"></div><div id="upload-preview-meta"></div></div>
+          </div>
+          <div id="upload-error" class="hidden">That doesn't look like a valid level file.</div>
+        </div>
+        <div class="upload-actions">
+          <button class="action-btn" id="upload-btn-cancel-1">Cancel</button>
+          <button class="action-btn primary" id="upload-step1-next" disabled>Next &#8594;</button>
+        </div>
+      </div>
+      <!-- Step 2: Confirm level -->
+      <div id="upload-step-2" class="hidden">
+        <div class="upload-header"><span class="upload-step-tag">STEP 2 OF 3</span>CONFIRM LEVEL</div>
+        <div class="upload-body">
+          <p class="upload-label">Level loaded:</p>
+          <div id="upload-preview-2">
+            <div id="upload-preview-icon-2">OK</div>
+            <div><div id="upload-preview-name-2"></div><div id="upload-preview-meta-2"></div></div>
+          </div>
+          <textarea id="upload-textarea" spellcheck="false" style="display:none;"></textarea>
+        </div>
+        <div class="upload-actions">
+          <button class="action-btn" id="upload-step2-back">&#8592; Back</button>
+          <button class="action-btn primary" id="upload-step2-next">Next &#8594;</button>
+        </div>
+      </div>
+      <!-- Step 3: Destination choice -->
+      <div id="upload-step-3" class="hidden">
+        <div class="upload-header"><span class="upload-step-tag">STEP 3 OF 3</span>WHERE TO SEND?</div>
+        <div class="upload-body">
+          <div class="upload-dest-choices">
+            <button class="upload-dest-btn" id="upload-dest-online">
+              <div class="upload-dest-label">Publish Online</div>
+              <div class="upload-dest-desc">Visible to everyone on the community board</div>
+            </button>
+            <button class="upload-dest-btn" id="upload-dest-user">
+              <div class="upload-dest-label">Send to User</div>
+              <div class="upload-dest-desc">Send privately to a specific player's inbox</div>
+            </button>
+          </div>
+        </div>
+        <div class="upload-actions">
+          <button class="action-btn" id="upload-step3-dest-back">&#8592; Back</button>
+        </div>
+      </div>
+      <!-- Step 4: Online publish settings -->
+      <div id="upload-step-4" class="hidden">
+        <div class="upload-header"><span class="upload-step-tag">PUBLISH ONLINE</span>SET DIFFICULTY</div>
+        <div class="upload-body">
+          <label class="upload-label">Difficulty (1 = easy, 10 = extreme):</label>
+          <div class="difficulty-picker">
+            <span class="diff-label">1</span>
+            <input type="range" id="upload-difficulty" min="1" max="10" value="5" style="flex:1;" />
+            <span class="diff-label">10</span>
+            <span id="upload-difficulty-val" class="diff-val">5</span>
+          </div>
+          <p class="upload-hint" style="margin-top:12px;">Your level will be visible to everyone on the community board.</p>
+        </div>
+        <div class="upload-actions">
+          <button class="action-btn" id="upload-step4-back">&#8592; Back</button>
+          <button class="action-btn primary" id="upload-btn-submit">Publish!</button>
+        </div>
+      </div>
+      <!-- Step 5: Send to specific user -->
+      <div id="upload-step-5" class="hidden">
+        <div class="upload-header"><span class="upload-step-tag">SEND PRIVATELY</span>CHOOSE RECIPIENT</div>
+        <div class="upload-body">
+          <label class="upload-label">Recipient username:</label>
+          <input type="text" id="upload-recipient" placeholder="Enter their username..." maxlength="30" autocomplete="off" class="upload-text-input" />
+          <div id="upload-private-error" class="hidden upload-private-error"></div>
+          <p class="upload-hint" style="margin-top:10px;">The level will appear in their inbox and they can play it directly.</p>
+        </div>
+        <div class="upload-actions">
+          <button class="action-btn" id="upload-step5-back">&#8592; Back</button>
+          <button class="action-btn primary" id="upload-btn-send-private">Send Level</button>
+        </div>
+      </div>
+      <!-- Step 6: Done -->
+      <div id="upload-step-6" class="hidden">
+        <div class="upload-header">DONE!</div>
+        <div class="upload-body">
+          <p class="upload-label" id="upload-done-msg">Your level is now live on the community board.</p>
+        </div>
+        <div class="upload-actions">
+          <button class="action-btn primary" id="upload-btn-done">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Exit Warning Overlay -->
+  <div id="exit-warning" class="hidden">
+    <div id="exit-warning-box">
+      <div id="exit-warning-title">! Hold On!</div>
+      <p id="exit-warning-msg">You have unsaved levels. If you leave now, your work may be lost.<br>Would you like to save a backup first?</p>
+      <div id="exit-warning-filename-row">
+        <label style="font-size:11px;color:#aac;">File name:</label>
+        <input type="text" id="exit-warning-filename" value="dodgefield-backup" placeholder="filename" />
+        <span style="font-size:11px;color:#667;">.json</span>
+      </div>
+      <div id="exit-warning-actions">
+        <button class="action-btn primary" id="exit-warning-save">Save &amp; Leave</button>
+        <button class="action-btn" id="exit-warning-leave">Leave Without Saving</button>
+        <button class="action-btn" id="exit-warning-stay">Stay on Page</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggestion modal -->
+  <div id="suggest-modal" class="hidden">
+    <div id="suggest-box">
+      <div id="suggest-header">
+        <span>SEND A SUGGESTION</span>
+        <button class="hub-btn" id="suggest-close">✕ Close</button>
+      </div>
+      <p id="suggest-hint">Have an idea, feedback, or found a bug? Let the creator know!</p>
+      <textarea id="suggest-text" placeholder="Type your suggestion here..." maxlength="1000"></textarea>
+      <div id="suggest-char-count">0 / 1000</div>
+      <div id="suggest-error" class="hidden"></div>
+      <div id="suggest-actions">
+        <button class="action-btn primary" id="suggest-submit">Send Suggestion</button>
+      </div>
+      <div id="suggest-success" class="hidden">Your suggestion was sent! Check your Inbox for a reply.</div>
+    </div>
+  </div>
+
+  <!-- Inbox modal -->
+  <div id="inbox-modal" class="hidden">
+    <div id="inbox-box">
+      <div id="inbox-header">
+        <span>INBOX</span>
+        <button class="hub-btn" id="inbox-close">✕ Close</button>
+      </div>
+      <div id="inbox-tabs">
+        <button class="inbox-tab active" id="inbox-tab-received">My Suggestions</button>
+        <button class="inbox-tab" id="inbox-tab-levels">Received Levels<span id="inbox-levels-badge" class="inbox-badge hidden">0</span></button>
+        <button class="inbox-tab hidden" id="inbox-tab-all">All Suggestions</button>
+        <button class="inbox-tab hidden" id="inbox-tab-reports">⚑ Reports</button>
+      </div>
+      <div id="inbox-list"></div>
+      <div id="inbox-loading" class="hub-empty hidden"><div class="hub-empty-text">Loading...</div></div>
+      <div id="inbox-empty" class="hub-empty hidden"><div class="hub-empty-text">No suggestions yet. You haven't sent any!</div></div>
+    </div>
+  </div>
+
+  <!-- Report modal -->
+  <div id="report-modal" class="hidden">
+    <div id="report-box">
+      <div id="report-header">
+        <span>⚑ REPORT LEVEL</span>
+        <button class="hub-btn" id="report-close">✕ Close</button>
+      </div>
+      <p id="report-hint">Reporting level <span id="report-level-name"></span></p>
+      <p id="report-hint2">Describe what's wrong — inappropriate content, broken level, etc.</p>
+      <textarea id="report-text" placeholder="Describe the issue..." maxlength="500"></textarea>
+      <div id="report-char-count">0 / 500</div>
+      <div id="report-error" class="hidden"></div>
+      <div id="report-actions">
+        <button class="action-btn primary" id="report-submit">Submit Report</button>
+      </div>
+      <div id="report-success" class="hidden">Report submitted. Thank you!</div>
+    </div>
+  </div>
+
+  <!-- Join Room Modal -->
+  <div id="join-room-modal" class="hidden">
+    <div id="join-room-box">
+      <h2>Join a Room</h2>
+      <p style="font-size:11px;color:#aac8ff;margin:0;">Enter the 6-character room code:</p>
+      <input type="text" id="join-room-code-input" maxlength="6" placeholder="ABC123" autocomplete="off" spellcheck="false" />
+      <div id="join-room-error"></div>
+      <div class="join-room-actions">
+        <button class="action-btn primary" id="join-room-confirm">Join</button>
+        <button class="action-btn" id="join-room-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
